@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">火狐下载目录修改</string>
+    <string name="xposed_description">将 Firefox 的下载保存目录重定向到自定义文件夹</string>
+    <string name="setting_title">下载目录设置</string>
+    <string name="setting_hint">例如：Movies 或 Pictures 或 Download/Firefox</string>
+    <string name="setting_hint_text">目录名相对于 /storage/emulated/0，不需要加前缀。修改后无需重启，下一次下载即生效。</string>
+    <string name="setting_save">保存</string>
+    <string name="saved">已保存，下一次下载将使用新目录</string>
+    <string name="invalid">目录不能为空</string>
+    <string name="status_ok">配置通道正常（LSPosed 新偏好机制已生效，Firefox 可读取）</string>
+    <string name="status_fail">警告：LSPosed 新偏好机制未生效，配置将无法被 Firefox 读取。请确认：1) 在 LSPosed 管理器中已启用本模块；2) LSPosed 版本 ≥ 1.8.x（API 93）；3) 修改后重新打开此页面。</string>
+</resources>

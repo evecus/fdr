@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 默认作用域：主流的 Firefox 包名，可在 LSPosed 管理器中调整 -->
+    <string-array name="xposed_scope">
+        <item>org.mozilla.firefox</item>
+        <item>org.mozilla.firefox_beta</item>
+        <item>org.mozilla.fenix</item>
+        <item>org.mozilla.fennec_fdroid</item>
+        <item>org.mozilla.firefox_preview</item>
+    </string-array>
+</resources>
