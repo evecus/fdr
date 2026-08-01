@@ -69,9 +69,13 @@ public class XposedEntry implements IXposedHookLoadPackage {
     }
 
     /**
-     * 主路径钩子：拦截 DownloadManager.Request.setDestinationInExternalPublicDir，
-     * 把 dirType（默认 "Download"）替换成用户配置的目录名。
-     * DownloadManager 下载流程在 DownloadProvider（系统进程）中会自动创建目标目录。
+     * 主路径钩子：拦截 DownloadManager.Request.setDestinationInExternalPublicDir(dirType, subPath)。
+     *
+     * 注意：Android 10+（Firefox targetSdk 36）要求 dirType 必须是标准公共目录
+     * （Download/Pictures/Movies/Music/DCIM/Documents 等），否则 DownloadProvider
+     * 会立即拒绝请求导致“下载失败”。因此：
+     * - 若用户目录是标准公共目录，直接替换 dirType；
+     * - 否则保持 dirType 不变，把用户目录拼到 subPath 前面（即保存到 Download/<用户目录>/）。
      */
     private static void hookDownloadManager() {
         XposedHelpers.findAndHookMethod(
@@ -86,10 +90,45 @@ public class XposedEntry implements IXposedHookLoadPackage {
                         if (folder.isEmpty()) {
                             return;
                         }
-                        param.args[0] = folder;
-                        XposedBridge.log("[FirefoxDownloadDir] DownloadManager dirType -> " + folder);
+                        String subPath = (String) param.args[1];
+                        if (isStandardDirectory(folder)) {
+                            param.args[0] = folder;
+                            XposedBridge.log("[FirefoxDownloadDir] DownloadManager dirType -> " + folder
+                                    + ", subPath=" + subPath);
+                        } else {
+                            param.args[1] = folder + "/" + (subPath == null ? "" : subPath);
+                            XposedBridge.log("[FirefoxDownloadDir] DownloadManager subPath -> "
+                                    + folder + "/" + subPath + " (dirType=" + param.args[0] + ")");
+                        }
                     }
                 });
+    }
+
+    /**
+     * Android 的 Environment.DIRECTORY_* 标准公共目录。
+     * 只有这些目录名才能作为 DownloadManager 的 dirType。
+     */
+    private static boolean isStandardDirectory(String name) {
+        if (name == null) {
+            return false;
+        }
+        switch (name) {
+            case "Download":
+            case "Pictures":
+            case "Movies":
+            case "Music":
+            case "DCIM":
+            case "Documents":
+            case "Podcasts":
+            case "Ringtones":
+            case "Alarms":
+            case "Notifications":
+            case "Audiobooks":
+            case "Recordings":
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**
